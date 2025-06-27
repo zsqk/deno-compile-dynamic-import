@@ -19,7 +19,25 @@ Deno.serve({ port: 9000 }, async (req) => {
     });
 
   if (!fn) {
-    return new Response("Not Found", { status: 404 });
+    return new Response("Not Found", {
+      status: 404,
+      headers: {
+        "Content-Type": "text/plain",
+      },
+    });
   }
-  return fn(req);
+  
+  // 执行路由处理函数并确保响应有统一的基础头部
+  const response = await fn(req);
+  
+  // 如果路由返回的不是 Response 对象，包装它
+  if (!(response instanceof Response)) {
+    return new Response(Deno.inspect(response), {
+      headers: {
+        "Content-Type": "text/plain",
+      },
+    });
+  }
+  
+  return response;
 });
