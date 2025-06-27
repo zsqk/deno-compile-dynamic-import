@@ -21,9 +21,44 @@ jobs:
         
     - name: 构建程序
       run: deno task build
-      
-    - name: 列出构建输出
-      run: ls -la
-      
-    - name: 运行构建后的程序
-      run: ./dist/main
+
+    - name: 在后台启动 HTTP 服务
+      run: |
+        ./dist/main &
+        echo $! > server.pid
+        
+    - name: 等待服务启动
+      run: |
+        timeout=30
+        while [ $timeout -gt 0 ]; do
+          if curl -s http://localhost:9000/test > /dev/null; then
+            echo "服务已启动"
+            break
+          fi
+          echo "等待服务启动... (剩余 $timeout 秒)"
+          sleep 1
+          timeout=$((timeout - 1))
+        done
+        if [ $timeout -eq 0 ]; then
+          echo "服务启动超时"
+          exit 1
+        fi
+        
+    - name: 测试 GET /test 端点
+      run: |
+        response=$(curl -s http://localhost:9000/test)
+        echo "响应内容: $response"
+        if [ "$response" = "Hello, World!" ]; then
+          echo "✅ /test 端点测试通过"
+        else
+          echo "❌ /test 端点测试失败，期望 'Hello, World!'，实际得到 '$response'"
+          exit 1
+        fi
+        
+    - name: 停止服务
+      if: always()
+      run: |
+        if [ -f server.pid ]; then
+          kill $(cat server.pid) || true
+          rm server.pid
+        fi
