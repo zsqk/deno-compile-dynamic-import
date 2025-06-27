@@ -1,1 +1,3 @@
-export const text = "Hello, World!";
+import { hi } from "./hi";
+
+export const text = `${hi}, World!`;
