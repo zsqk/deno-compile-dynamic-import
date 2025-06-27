@@ -9,8 +9,15 @@ on:
 jobs:
   build-and-run:
     runs-on: ubuntu-latest
+    container:
+      image: debian:10
     
     steps:
+    - name: 安装必要工具
+      run: |
+        apt-get update
+        apt-get install -y curl unzip
+        
     - name: 检出代码
       uses: actions/checkout@v4
       
