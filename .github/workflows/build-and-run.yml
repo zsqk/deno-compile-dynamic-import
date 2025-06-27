@@ -1,0 +1,29 @@
+name: Build and Run
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      
+    - name: 设置 Deno
+      uses: denoland/setup-deno@v2
+      with:
+        deno-version: v2.3.7
+        
+    - name: 构建程序
+      run: deno task build
+      
+    - name: 列出构建输出
+      run: ls -la
+      
+    - name: 运行构建后的程序
+      run: ./dist/main

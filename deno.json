@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "build": "deno compile -A --include dynamic-import main.ts",
+    "build": "deno compile -A --output dist/main --include dynamic-import main.ts",
     "dev": "deno run --watch main.ts"
   },
   "imports": {
